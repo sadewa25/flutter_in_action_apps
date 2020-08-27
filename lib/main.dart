@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_real_apps/models/transaction.dart';
+import 'package:flutter_real_apps/widgets/chart.dart';
 import 'package:flutter_real_apps/widgets/new_transaction.dart';
 import 'package:flutter_real_apps/widgets/transaction_list.dart';
 
@@ -52,6 +53,14 @@ class _MyHomePageState extends State<MyHomePage> {
         id: 't3', title: 'New Shoes2', amount: 65.0, dateTime: DateTime.now())*/
   ];
 
+  List<Transaction> get _recentTransactions {
+    return _userTransaction.where((tx) {
+      return tx.dateTime.isAfter(DateTime.now().subtract(
+        Duration(days: 7),
+      ));
+    }).toList();
+  }
+
   void _addNewTransaction(String title, double amount) {
     final newTx = Transaction(
         title: title,
@@ -69,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
         context: ctx,
         builder: (bCtx) {
           return GestureDetector(
-            onTap: (){},
+            onTap: () {},
             child: NewTransaction(_addNewTransaction),
             behavior: HitTestBehavior.opaque,
           );
@@ -89,28 +98,27 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
-        actions: [IconButton(icon: Icon(Icons.add), onPressed: () => _startAddnewTransaction(context))],
-      ),
-      body: Column(
-        //mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            width: double.infinity,
-            child: Card(
-              child: Text('Chart!'),
-              elevation: 5,
-              color: Colors.blue,
-            ),
-          ),
-          TransactionList(_userTransaction)
+        actions: [
+          IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () => _startAddnewTransaction(context))
         ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          //mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Chart(_recentTransactions),
+            TransactionList(_userTransaction)
+          ],
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed:
-              () => _startAddnewTransaction(context)), // This trailing comma makes auto-formatting nicer for build methods.
+          onPressed: () => _startAddnewTransaction(
+              context)), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
