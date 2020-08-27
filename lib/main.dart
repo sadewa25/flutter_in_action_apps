@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_real_apps/transaction/transaction.dart';
-import 'package:intl/intl.dart';
-
-import 'transaction/transaction.dart';
+import 'package:flutter_real_apps/models/transaction.dart';
+import 'package:flutter_real_apps/widgets/new_transaction.dart';
+import 'package:flutter_real_apps/widgets/transaction_list.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,20 +14,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter App',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
+        primarySwatch: Colors.purple,
+        accentColor: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        fontFamily: 'SamsungSharp',
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -56,14 +43,38 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> transactions = [
-    Transaction(
+  final List<Transaction> _userTransaction = [
+    /*Transaction(
         id: 't1', title: 'New Shoes', amount: 80.0, dateTime: DateTime.now()),
     Transaction(
         id: 't2', title: 'New Shoes1', amount: 75.0, dateTime: DateTime.now()),
     Transaction(
-        id: 't3', title: 'New Shoes2', amount: 65.0, dateTime: DateTime.now())
+        id: 't3', title: 'New Shoes2', amount: 65.0, dateTime: DateTime.now())*/
   ];
+
+  void _addNewTransaction(String title, double amount) {
+    final newTx = Transaction(
+        title: title,
+        amount: amount,
+        dateTime: DateTime.now(),
+        id: DateTime.now().toString());
+
+    setState(() {
+      _userTransaction.add(newTx);
+    });
+  }
+
+  void _startAddnewTransaction(BuildContext ctx) {
+    showModalBottomSheet(
+        context: ctx,
+        builder: (bCtx) {
+          return GestureDetector(
+            onTap: (){},
+            child: NewTransaction(_addNewTransaction),
+            behavior: HitTestBehavior.opaque,
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: [IconButton(icon: Icon(Icons.add), onPressed: () => _startAddnewTransaction(context))],
       ),
       body: Column(
         //mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -91,70 +103,14 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.blue,
             ),
           ),
-          Card(
-            elevation: 5,
-            child: Container(
-              padding: EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Title'),
-                  ),
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Amount'),
-                  ),
-                  FlatButton(
-                    onPressed: (){
-
-                    },
-                    child: Text('Add Transaction'),
-                    textColor: Colors.purple,
-                  )
-                ],
-              ),
-            ),
-          ),
-          Column(
-            children: transactions.map((e) {
-              return Card(
-                child: Row(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.all(8),
-                      padding: EdgeInsets.all(8),
-                      child: Text(
-                        "Rp. ${e.amount.toString()}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.purple),
-                      ),
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.purple, width: 2)),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          e.title,
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        Container(
-                          margin: EdgeInsets.fromLTRB(0, 4, 0, 0),
-                          child: Text(
-                            DateFormat.yMMMd().format(e.dateTime),
-                            style: TextStyle(color: Colors.green),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              );
-            }).toList(),
-          )
+          TransactionList(_userTransaction)
         ],
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed:
+              () => _startAddnewTransaction(context)), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
