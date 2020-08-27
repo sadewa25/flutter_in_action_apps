@@ -15,11 +15,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter App',
       theme: ThemeData(
-        primarySwatch: Colors.purple,
-        accentColor: Colors.amber,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        fontFamily: 'SamsungSharp',
-      ),
+          primarySwatch: Colors.purple,
+          accentColor: Colors.amber,
+          errorColor: Colors.red,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          fontFamily: 'SamsungSharp',
+          textTheme: ThemeData.light()
+              .textTheme
+              .copyWith(button: TextStyle(color: Colors.white))),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -61,15 +64,23 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
-  void _addNewTransaction(String title, double amount) {
+  void _addNewTransaction(String title, double amount, DateTime chosenDate) {
     final newTx = Transaction(
         title: title,
         amount: amount,
-        dateTime: DateTime.now(),
+        dateTime: chosenDate,
         id: DateTime.now().toString());
 
     setState(() {
       _userTransaction.add(newTx);
+    });
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransaction.removeWhere((element) {
+        return element.id == id;
+      });
     });
   }
 
@@ -93,24 +104,36 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    final appbar = AppBar(
+      // Here we take the value from the MyHomePage object that was created by
+      // the App.build method, and use it to set our appbar title.
+      title: Text(widget.title),
+      actions: [
+        IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () => _startAddnewTransaction(context))
+      ],
+    );
+
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => _startAddnewTransaction(context))
-        ],
-      ),
+      appBar: appbar,
       body: SingleChildScrollView(
         child: Column(
           //mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Chart(_recentTransactions),
-            TransactionList(_userTransaction)
+            Container(
+                height: (MediaQuery.of(context).size.height -
+                        appbar.preferredSize.height -
+                        MediaQuery.of(context).padding.top) *
+                    0.4,
+                child: Chart(_recentTransactions)),
+            Container(
+                height: (MediaQuery.of(context).size.height -
+                        appbar.preferredSize.height -
+                    MediaQuery.of(context).padding.top) *
+                    0.6,
+                child: TransactionList(_userTransaction, _deleteTransaction))
           ],
         ),
       ),
